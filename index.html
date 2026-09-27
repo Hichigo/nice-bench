@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Стенды NICE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600&family=Unbounded:wght@500;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --ground: #f2f4f0;
+    --surface: #ffffff;
+    --ink: #16201b;
+    --muted: #5a6660;
+    --line: #d5dbd4;
+    --accent: #1d6b58;
+    --accent-ink: #ffffff;
+    --ok: #2c7a4d;
+    --ok-bg: #e3f1e8;
+    --wait: #8a5a00;
+    --wait-bg: #f6ecd6;
+    --shade: rgba(10, 14, 12, .92);
+    --display: "Unbounded", "Onest", system-ui, sans-serif;
+    --body: "Onest", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --ground: #0e1311;
+      --surface: #151c19;
+      --ink: #e4ebe7;
+      --muted: #93a09a;
+      --line: #27312d;
+      --accent: #5cc2a4;
+      --accent-ink: #08130f;
+      --ok: #7fd6a1;
+      --ok-bg: #173325;
+      --wait: #e7b75a;
+      --wait-bg: #33280f;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --ground: #0e1311;
+    --surface: #151c19;
+    --ink: #e4ebe7;
+    --muted: #93a09a;
+    --line: #27312d;
+    --accent: #5cc2a4;
+    --accent-ink: #08130f;
+    --ok: #7fd6a1;
+    --ok-bg: #173325;
+    --wait: #e7b75a;
+    --wait-bg: #33280f;
+  }
+
+  body { background: var(--ground); color: var(--ink); font: 16px/1.5 var(--body); }
+  .page { max-width: 720px; margin: 0 auto; padding-inline: 16px; padding-block: 28px 48px; display: flex; flex-direction: column; gap: 36px; }
+
+  header { display: flex; flex-direction: column; gap: 10px; }
+  .eyebrow { font: 500 12px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  h1 { font: 700 clamp(28px, 7vw, 40px)/1.05 var(--display); margin: 0; text-wrap: balance; letter-spacing: -.01em; }
+  .lead { margin: 0; color: var(--muted); max-width: 60ch; }
+
+  h2 { font: 500 17px/1.3 var(--display); margin: 0; text-wrap: balance; }
+  section { display: flex; flex-direction: column; gap: 14px; }
+
+  .bench { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 14px; scroll-margin-top: 16px; }
+  .bench:target { border-color: var(--accent); border-style: solid; }
+  .bench-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .bench-head h2 { font-size: 19px; }
+  .dur { font: 500 13px/1 var(--mono); color: var(--muted); white-space: nowrap; }
+  .bench p { margin: 0; max-width: 62ch; }
+  .facts { display: grid; grid-template-columns: max-content 1fr; gap: 6px 14px; margin: 0; font-size: 14px; }
+  .facts dt { color: var(--muted); }
+  .facts dd { margin: 0; }
+  code, .file { font: 13px/1.4 var(--mono); }
+  .file { overflow-wrap: anywhere; }
+  .run { align-self: flex-start; font: 600 16px/1 var(--body); padding: 14px 22px; border: 0; border-radius: 10px; background: var(--accent); color: var(--accent-ink); cursor: pointer; }
+  .run:focus-visible, .close:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+
+  .steps { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 8px; max-width: 62ch; }
+  .note { margin: 0; color: var(--muted); font-size: 14px; max-width: 62ch; }
+
+  .soon { background: transparent; border-style: dashed; }
+  .soon p { color: var(--muted); }
+  .run:disabled { background: var(--line); color: var(--muted); cursor: default; }
+  .devices { list-style: none; margin: 0; padding: 0; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+  .devices li { display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; border-bottom: 1px solid var(--line); font-size: 14px; }
+  .devices li:last-child { border-bottom: 0; }
+  .devices small { display: block; color: var(--muted); font: 12px/1.3 var(--mono); }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .pill { display: inline-block; font: 500 12px/1 var(--mono); padding: 5px 8px; border-radius: 999px; white-space: nowrap; }
+  .pill.ok { color: var(--ok); background: var(--ok-bg); }
+  .pill.wait { color: var(--wait); background: var(--wait-bg); }
+
+  #runner { position: fixed; inset: 0; z-index: 10; background: #000; }
+  #frame { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block; }
+  .close { position: absolute; z-index: 2; top: calc(10px + env(safe-area-inset-top, 0px)); right: 10px; font: 600 14px/1 var(--body); padding: 10px 12px; border: 0; border-radius: 10px; background: rgba(255, 255, 255, .16); color: #fff; cursor: pointer; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+  #toast { position: absolute; z-index: 2; left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom, 0px)); padding: 12px 14px; border-radius: 12px; background: var(--shade); color: #fff; font-size: 15px; display: flex; flex-direction: column; gap: 10px; }
+  #toast[hidden] { display: none; }
+  #toast-save { align-self: flex-start; font: 600 15px/1 var(--body); padding: 12px 18px; border: 0; border-radius: 10px; background: #5cc2a4; color: #08130f; cursor: pointer; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .run { transition: transform .12s ease; }
+    .run:active { transform: scale(.97); }
+  }
+</style>
+<style>body{margin:0}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}a.run{display:inline-block;text-decoration:none}</style>
+</head>
+<body>
+<main class="page">
+  <header>
+    <span class="eyebrow">NICE · замеры на устройствах</span>
+    <h1>Стенды NICE</h1>
+    <p class="lead">Откройте на телефоне или планшете, запустите стенд и сохраните результат файлом. Файл пришлите разработчику — он ляжет в <code>bench/result_from_phones/</code>.</p>
+  </header>
+
+  <article class="bench" id="nice-bench">
+    <div class="bench-head">
+      <h2>Графика</h2>
+      <span class="dur">≈ 1 + 2 мин</span>
+    </div>
+    <p>Сцена плеебла: земля, 70 пропсов, 10 героев. Два набора. <b>Основной</b> — 14 случаев по отдельности: разрешение, тени, точечный свет, обводка, частицы, пост-обработка. <b>Нагрузка</b> — сочетания (тень + свой проход + частицы), 100–300 частиц, mediump, UI-слой из 30 элементов, PBR с шестью картами, сглаживание контекста, PMREM.</p>
+    <dl class="facts">
+      <dt>Перед стартом</dt><dd>Телефон вертикально, другие приложения закрыты, экран не трогать до конца. Сначала «Основной», затем «Нагрузка».</dd>
+      <dt>Файлы</dt><dd class="file">nice-bench-…json, nice-bench-load-…json</dd>
+    </dl>
+    <a class="run" href="graphics.html">Открыть стенд</a>
+  </article>
+
+  <article class="bench" id="frame-core">
+    <div class="bench-head">
+      <h2>Кадр и ядро</h2>
+      <span class="dur">≈ 50 с</span>
+    </div>
+    <p>Частота экрана до первого касания и после него, три способа ограничить FPS на 30, 60 и 45, цена кадра на 1000 и 5000 объектов и скорость JS относительно ПК.</p>
+    <dl class="facts">
+      <dt>Перед стартом</dt><dd>Откройте стенд и подождите пару секунд до нажатия «Старт» — это замер до касания.</dd>
+      <dt>Файл</dt><dd class="file">nice-frame-…json</dd>
+    </dl>
+    <a class="run" href="frame.html">Открыть стенд</a>
+  </article>
+
+  <article class="bench" id="anim">
+    <div class="bench-head">
+      <h2>Анимация</h2>
+      <span class="dur">≈ 1 мин</span>
+    </div>
+    <p>Скиновые персонажи размером с дроида: 43 кости, 47 тыс. вершин, три клипа сразу. Сколько их держит устройство: 1, 5, 10, 20, 30 и 40; 30 с обновлением через кадр; 30 без обновления, только скиннинг на GPU.</p>
+    <dl class="facts">
+      <dt>Перед стартом</dt><dd>Экран не трогать до конца.</dd>
+      <dt>Файл</dt><dd class="file">nice-anim-…json</dd>
+    </dl>
+    <a class="run" href="anim.html">Открыть стенд</a>
+  </article>
+
+  <article class="bench" id="assets">
+    <div class="bench-head">
+      <h2>Ассеты и распаковка</h2>
+      <span class="dur">≈ 20 с</span>
+    </div>
+    <p>Старт сжатой сборки: base64 и base122 в байты, распаковка встроенным <code>DecompressionStream</code> и fflate, геометрия meshopt на 50 тыс. вершин, декод WebP, JPEG, PNG и AVIF и загрузка текстур в WebGL, список сжатых форматов GPU.</p>
+    <dl class="facts">
+      <dt>Файл</dt><dd class="file">nice-assets-…json</dd>
+    </dl>
+    <a class="run" href="assets.html">Открыть стенд</a>
+  </article>
+
+  <article class="bench" id="audio-input">
+    <div class="bench-head">
+      <h2>Звук и ввод</h2>
+      <span class="dur">≈ 5 мин</span>
+    </div>
+    <p>Когда звук начинает играть, какие форматы декодируются, слышно ли в беззвучном режиме, возвращается ли звук после сворачивания и звонка. Потом касания: джойстик, мультитач, жесты у краёв экрана.</p>
+    <dl class="facts">
+      <dt>Перед стартом</dt><dd>Громкость на половину, беззвучный режим выключен. Стенд сам попросит переключить режим, свернуть браузер и отвечать «слышно / не слышно».</dd>
+      <dt>Файл</dt><dd class="file">nice-audio-input-…json</dd>
+    </dl>
+    <a class="run" href="audio-input.html">Открыть стенд</a>
+  </article>
+
+  <article class="bench soon" id="physics">
+    <div class="bench-head">
+      <h2>Физика</h2>
+      <span class="dur">позже</span>
+    </div>
+    <p>Rapier и Bullet в урезанных сборках: шаг мира на 100–500 тел, суставы, вес. Стенд появится, когда будут собраны урезанные версии движков — для этого нужны Rust и Emscripten.</p>
+    <button class="run" type="button" disabled>Пока нет</button>
+  </article>
+
+  <section>
+    <h2>Как сохранить результат</h2>
+    <ol class="steps">
+      <li>В конце стенд покажет JSON и кнопки «Копировать» и «Сохранить файл».</li>
+      <li>Нажмите «Сохранить файл» — файл попадёт в «Загрузки». Кнопка браузера «Назад» вернёт к списку стендов.</li>
+      <li>Если сохранить не вышло, нажмите «Копировать» и вставьте текст в заметку или сообщение.</li>
+    </ol>
+    <p class="note">Каждый стенд — отдельная страница. Pixel 6 серии 2 снят на странице-артефакте claude.ai, где стенд работал во фрейме; разница с отдельной страницей — в пределах шума, кроме проверок «до касания».</p>
+  </section>
+
+  <section>
+    <h2>Что уже снято</h2>
+    <ul class="devices">
+      <li><div><b>Samsung Galaxy M12</b><small>Mali-G52 · 339×753 @2,125</small></div>
+        <div class="chips"><span class="pill ok">графика 27.09</span><span class="pill wait">нагрузка</span><span class="pill wait">кадр</span><span class="pill wait">анимация</span><span class="pill wait">ассеты</span><span class="pill wait">звук</span></div></li>
+      <li><div><b>Google Pixel 6</b><small>Mali-G78 · 412×915 @2,625</small></div>
+        <div class="chips"><span class="pill ok">графика 27.09</span><span class="pill ok">нагрузка 27.09</span><span class="pill ok">кадр 27.09</span><span class="pill ok">анимация 27.09</span><span class="pill ok">ассеты 27.09</span><span class="pill ok">звук 27.09</span></div></li>
+      <li><div><b>iPhone 15</b></div>
+        <div class="chips"><span class="pill wait">графика</span><span class="pill wait">нагрузка</span><span class="pill wait">кадр</span><span class="pill wait">анимация</span><span class="pill wait">ассеты</span><span class="pill wait">звук</span></div></li>
+      <li><div><b>iPad Pro 12.9" 4-го пок.</b><small>iPadOS 26.7</small></div>
+        <div class="chips"><span class="pill wait">графика</span><span class="pill wait">нагрузка</span><span class="pill wait">кадр</span><span class="pill wait">анимация</span><span class="pill wait">ассеты</span><span class="pill wait">звук</span></div></li>
+    </ul>
+    <p class="note">Зелёное — снято, жёлтое — нужно снять.</p>
+  </section>
+</main>
+</body>
+</html>
