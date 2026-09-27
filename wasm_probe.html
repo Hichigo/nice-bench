@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>wasm_probe</title>
+<script>
+// Пробник площадки: работает ли WebAssembly внутри плеебла. Нарушения CSP ловим с самого начала страницы.
+window.__csp = [];
+document.addEventListener('securitypolicyviolation', function (e) {
+  window.__csp.push((e.violatedDirective || e.effectiveDirective) + ' ← ' + (e.blockedURI || '?'));
+});
+// Mintegral вызывает gameStart / gameClose сам; плеебл обязан их объявить.
+window.gameStart = function () { window.__started = true; };
+window.gameClose = function () {};
+</script>
+<style>
+  html,body{margin:0;height:100%;background:#111;color:#eee;font:14px/1.35 system-ui,-apple-system,sans-serif;overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none}
+  #wrap{position:absolute;inset:0;bottom:76px;overflow:auto;padding:12px 12px 0;box-sizing:border-box}
+  #verdict{font-size:26px;font-weight:800;padding:14px;border-radius:12px;text-align:center;background:#444}
+  #verdict.ok{background:#1b7d3a} #verdict.bad{background:#a8232b}
+  #code{font:13px/1.3 ui-monospace,Menlo,monospace;background:#000;color:#9fe;padding:8px;border-radius:8px;margin:10px 0;word-break:break-all}
+  table{width:100%;border-collapse:collapse;font-size:13px} td{padding:3px 4px;border-bottom:1px solid #2a2a2a;vertical-align:top} td:first-child{white-space:nowrap;color:#aaa}
+  .y{color:#6e6} .n{color:#f66}
+  #cta{position:absolute;left:12px;right:12px;bottom:12px;height:52px;border:0;border-radius:12px;background:#2f6bff;color:#fff;font:700 20px system-ui,sans-serif}
+</style>
+</head>
+<body>
+<div id="wrap">
+  <div id="verdict">проверяю…</div>
+  <div id="code"></div>
+  <table id="t"></table>
+</div>
+<button id="cta" type="button">Установить</button>
+<script>
+(function () {
+  var rows = [], code = [];
+  function row(k, v, ok) { rows.push([k, v, ok]); }
+  function mark(k, ok) { code.push(k + ':' + (ok === true ? 1 : ok === false ? 0 : '-')); }
+
+  // Модуль WebAssembly из байтов: одна функция f без параметров, тело — байты опкодов.
+  function mod(body, result, mem) {
+    var b = [0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00];
+    var type = [0x01, 0x60, 0x00].concat(result ? [0x01, 0x7f] : [0x00]);
+    b = b.concat([0x01, type.length], type);
+    b = b.concat([0x03, 0x02, 0x01, 0x00]);
+    if (mem) b = b.concat([0x05, 0x03, 0x01, 0x00, 0x01]);
+    b = b.concat([0x07, 0x05, 0x01, 0x01, 0x66, 0x00, 0x00]);
+    var fn = [0x00].concat(body, [0x0b]);
+    var code = [0x01, fn.length].concat(fn);
+    b = b.concat([0x0a, code.length], code);
+    return new Uint8Array(b);
+  }
+  var MVP = mod([0x41, 0x02, 0x41, 0x03, 0x6a], true);                                  // 2 + 3
+  var FEAT = {
+    bulk: mod([0x41, 0x00, 0x41, 0x00, 0x41, 0x00, 0xfc, 0x0a, 0x00, 0x00], false, true), // memory.copy
+    signext: mod([0x41, 0x00, 0xc0], true),                                              // i32.extend8_s
+    satconv: mod([0x43, 0x00, 0x00, 0x00, 0x00, 0xfc, 0x00], true),                      // i32.trunc_sat_f32_s
+    simd: mod([0xfd, 0x0c].concat(new Array(16).fill(0), [0x1a]), false),                // v128.const; drop
+  };
+  function err(e) { return (e && (e.name + ': ' + e.message)) || String(e); }
+
+  var hasWA = typeof WebAssembly === 'object';
+  row('WebAssembly есть', hasWA ? 'да' : 'нет', hasWA); mark('W', hasWA);
+
+  var syncOk = null, syncErr = '';
+  if (hasWA) {
+    try { var inst = new WebAssembly.Instance(new WebAssembly.Module(MVP)); syncOk = inst.exports.f() === 5; if (!syncOk) syncErr = 'f() = ' + inst.exports.f(); }
+    catch (e) { syncOk = false; syncErr = err(e); }
+    row('компиляция из байтов (sync)', syncOk ? 'да, 2+3=5' : syncErr, syncOk); mark('S', syncOk);
+    for (var k in FEAT) { var v = false; try { v = WebAssembly.validate(FEAT[k]); } catch (e) {} row('расширение ' + k, v ? 'да' : 'нет', v); mark(k[0].toUpperCase() + k.slice(1, 3), v); }
+  }
+
+  var evalOk; try { evalOk = new Function('return 7')() === 7; } catch (e) { evalOk = false; }
+  row('eval / new Function (unsafe-eval)', evalOk ? 'разрешён' : 'запрещён', evalOk); mark('E', evalOk);
+
+  var metas = [].slice.call(document.querySelectorAll('meta[http-equiv]')).filter(function (m) { return /content-security-policy/i.test(m.httpEquiv); }).map(function (m) { return m.content; });
+  row('CSP в meta', metas.length ? metas.join(' | ') : 'нет', null);
+
+  var framed = false; try { framed = window.top !== window.self; } catch (e) { framed = true; }
+  var topAccess = 'нет фрейма'; if (framed) { try { void window.top.location.href; topAccess = 'во фрейме, тот же origin'; } catch (e) { topAccess = 'во фрейме, чужой origin / sandbox'; } }
+  row('фрейм', topAccess, null); mark('F', framed);
+  row('адрес', location.protocol + '//' + location.host + location.pathname.slice(0, 60), null);
+  row('origin', String(window.origin), null);
+  row('referrer', document.referrer || '—', null);
+  row('UA', navigator.userAgent, null);
+  row('экран', screen.width + '×' + screen.height + ' @' + (window.devicePixelRatio || 1) + ', окно ' + innerWidth + '×' + innerHeight, null);
+  row('Mintegral API', ['install', 'gameReady', 'gameEnd', 'gameRetry'].map(function (n) { return n + (typeof window[n] === 'function' ? '✔' : '✘'); }).join(' '), null);
+  row('mraid', typeof window.mraid === 'object' ? 'есть' : 'нет', null);
+  var ds = typeof DecompressionStream === 'function', fb = typeof Uint8Array.fromBase64 === 'function';
+  row('DecompressionStream / fromBase64', (ds ? 'да' : 'нет') + ' / ' + (fb ? 'да' : 'нет'), null); mark('D', ds);
+
+  function render(asyncOk, asyncErr, ms) {
+    var ok = hasWA && syncOk && asyncOk;
+    var v = document.getElementById('verdict');
+    v.className = ok ? 'ok' : 'bad';
+    v.textContent = ok ? 'WASM РАБОТАЕТ' : 'WASM НЕ РАБОТАЕТ';
+    var all = rows.concat(asyncOk === undefined ? [] : [['компиляция async + instantiate', asyncOk ? 'да, ' + ms + ' мс' : asyncErr, asyncOk]]);
+    if (window.__csp.length) all.push(['нарушения CSP', window.__csp.join(' ; '), false]);
+    all.push(['gameStart вызван', window.__started ? 'да' : 'нет (пока)', null]);
+    document.getElementById('t').innerHTML = all.map(function (r) {
+      var cls = r[2] === true ? 'y' : r[2] === false ? 'n' : '';
+      return '<tr><td>' + r[0] + '</td><td class="' + cls + '">' + String(r[1]).replace(/</g, '&lt;') + '</td></tr>';
+    }).join('');
+    document.getElementById('code').textContent = 'wasm_probe v1 · ' + code.concat(['A:' + (asyncOk ? 1 : 0), 'CSP:' + window.__csp.length]).join(' ');
+  }
+
+  if (hasWA) {
+    var t0 = performance.now();
+    WebAssembly.instantiate(MVP).then(function (r) {
+      render(r.instance.exports.f() === 5, '', Math.round((performance.now() - t0) * 10) / 10);
+    }, function (e) { render(false, err(e)); });
+  } else render(false, 'нет WebAssembly');
+
+  document.getElementById('cta').addEventListener('click', function () {
+    if (typeof window.install === 'function') window.install();
+    else if (window.mraid && window.mraid.open) window.mraid.open('https://play.google.com/store');
+  });
+  if (typeof window.gameReady === 'function') window.gameReady();
+  setInterval(function () { if (window.__started) { var c = document.getElementById('t'); if (c && !/gameStart вызван<\/td><td[^>]*>да/.test(c.innerHTML)) c.innerHTML = c.innerHTML.replace('нет (пока)', 'да'); } }, 500);
+})();
+</script>
+</body>
+</html>
