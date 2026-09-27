@@ -80,6 +80,7 @@
   code, .file { font: 13px/1.4 var(--mono); }
   .file { overflow-wrap: anywhere; }
   .run { align-self: flex-start; font: 600 16px/1 var(--body); padding: 14px 22px; border: 0; border-radius: 10px; background: var(--accent); color: var(--accent-ink); cursor: pointer; }
+  a.analytics { display: inline-block; text-decoration: none; }
   .run:focus-visible, .close:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
 
   .steps { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 8px; max-width: 62ch; }
@@ -117,6 +118,7 @@
     <span class="eyebrow">NICE · замеры на устройствах</span>
     <h1>Стенды NICE</h1>
     <p class="lead">Откройте на телефоне или планшете, запустите стенд и сохраните результат файлом. Файл пришлите разработчику — он ляжет в <code>bench/result_from_phones/</code>.</p>
+    <a class="run analytics" href="analytics.html">Аналитика замеров →</a>
   </header>
 
   <article class="bench" id="nice-bench">
