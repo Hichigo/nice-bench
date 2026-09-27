@@ -16,11 +16,11 @@ window.gameClose = function () {};
 </script>
 <style>
   html,body{margin:0;height:100%;background:#111;color:#eee;font:14px/1.35 system-ui,-apple-system,sans-serif;overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none}
-  #wrap{position:absolute;inset:0;bottom:76px;overflow:auto;padding:12px 12px 0;box-sizing:border-box}
+  #wrap{position:absolute;inset:0;bottom:76px;overflow-x:hidden;overflow-y:auto;padding:12px 12px 0;box-sizing:border-box}
   #verdict{font-size:26px;font-weight:800;padding:14px;border-radius:12px;text-align:center;background:#444}
   #verdict.ok{background:#1b7d3a} #verdict.bad{background:#a8232b}
   #code{font:13px/1.3 ui-monospace,Menlo,monospace;background:#000;color:#9fe;padding:8px;border-radius:8px;margin:10px 0;word-break:break-all}
-  table{width:100%;border-collapse:collapse;font-size:13px} td{padding:3px 4px;border-bottom:1px solid #2a2a2a;vertical-align:top} td:first-child{white-space:nowrap;color:#aaa}
+  table{width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed} td{word-break:break-word} td:first-child{width:42%} td{padding:3px 4px;border-bottom:1px solid #2a2a2a;vertical-align:top} td:first-child{color:#aaa}
   .y{color:#6e6} .n{color:#f66}
   #cta{position:absolute;left:12px;right:12px;bottom:12px;height:52px;border:0;border-radius:12px;background:#2f6bff;color:#fff;font:700 20px system-ui,sans-serif}
 </style>
@@ -102,7 +102,7 @@ window.gameClose = function () {};
       var cls = r[2] === true ? 'y' : r[2] === false ? 'n' : '';
       return '<tr><td>' + r[0] + '</td><td class="' + cls + '">' + String(r[1]).replace(/</g, '&lt;') + '</td></tr>';
     }).join('');
-    document.getElementById('code').textContent = 'wasm_probe v1 · ' + code.concat(['A:' + (asyncOk ? 1 : 0), 'CSP:' + window.__csp.length]).join(' ');
+    document.getElementById('code').textContent = 'wasm_probe v2 · ' + code.concat(['A:' + (asyncOk ? 1 : 0), 'CSP:' + window.__csp.length]).join(' ');
   }
 
   if (hasWA) {
@@ -112,7 +112,10 @@ window.gameClose = function () {};
     }, function (e) { render(false, err(e)); });
   } else render(false, 'нет WebAssembly');
 
+  // Конец «игры» для Mintegral — перед переходом в стор: gameEnd() один раз, затем install()
+  var ended = false;
   document.getElementById('cta').addEventListener('click', function () {
+    if (!ended && typeof window.gameEnd === 'function') { ended = true; window.gameEnd(); }
     if (typeof window.install === 'function') window.install();
     else if (window.mraid && window.mraid.open) window.mraid.open('https://play.google.com/store');
   });
