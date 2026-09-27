@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-
+<script src="mraid.js"></script>
 <title>wasm_probe</title>
 <script>
 // Пробник площадки: работает ли WebAssembly внутри плеебла. Шаблон — build.py подставляет площадку и её теги.
 // Нарушения CSP ловим с самого начала страницы; originalPolicy — полный текст CSP, даже если он пришёл заголовком.
-window.__net = 'mintegral';
+window.__net = 'ironsource';
 window.__csp = []; window.__policy = '';
 document.addEventListener('securitypolicyviolation', function (e) {
   window.__csp.push((e.violatedDirective || e.effectiveDirective) + ' ← ' + (e.blockedURI || '?'));

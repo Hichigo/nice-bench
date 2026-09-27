@@ -8,7 +8,7 @@
 <script>
 // Пробник площадки: работает ли WebAssembly внутри плеебла. Шаблон — build.py подставляет площадку и её теги.
 // Нарушения CSP ловим с самого начала страницы; originalPolicy — полный текст CSP, даже если он пришёл заголовком.
-window.__net = 'mintegral';
+window.__net = 'meta';
 window.__csp = []; window.__policy = '';
 document.addEventListener('securitypolicyviolation', function (e) {
   window.__csp.push((e.violatedDirective || e.effectiveDirective) + ' ← ' + (e.blockedURI || '?'));
