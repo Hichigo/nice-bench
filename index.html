@@ -86,6 +86,11 @@
   .steps { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 8px; max-width: 62ch; }
   .note { margin: 0; color: var(--muted); font-size: 14px; max-width: 62ch; }
 
+  .checks { padding: 16px; border: 1px dashed var(--accent); border-radius: 16px; gap: 14px; }
+  .checks-head { display: flex; flex-direction: column; gap: 6px; }
+  .check .bench-head h2 { font-size: 17px; }
+  h2.group { font-size: 19px; margin-bottom: -22px; }
+
   .soon { background: transparent; border-style: dashed; }
   .soon p { color: var(--muted); }
   .run:disabled { background: var(--line); color: var(--muted); cursor: default; }
@@ -120,6 +125,30 @@
     <p class="lead">Откройте на телефоне или планшете, запустите стенд и сохраните результат файлом. Файл пришлите разработчику — он ляжет в <code>bench/result_from_phones/</code>.</p>
     <a class="run analytics" href="analytics.html">Аналитика замеров →</a>
   </header>
+
+  <section class="checks" id="checks">
+    <div class="checks-head">
+      <h2>Проверки разработки</h2>
+      <p class="note">Короткие замеры по ходу работы над движком. Каждая проверка отвечает на один вопрос из карточки в базе знаний и снимается на указанном устройстве; когда вопрос решён, проверка уходит из списка.</p>
+    </div>
+    <!-- Новые проверки — сверху: article.bench.check, в заголовке ключ карточки rag. -->
+    <article class="bench check" id="check-limiter">
+      <div class="bench-head">
+        <h2>Лимитер FPS: округление до периодов экрана</h2>
+        <span class="dur">≈ 65 с</span>
+      </div>
+      <p>Лимитер движка против варианта, который округляет прошедшее время до целых периодов экрана. На 90 Гц при локе 60 в симуляции движок даёт 3–4 % неровных кадров (через 11 мс вместо 22), округление — около 1 %. Решаем по замеру на настоящем экране.</p>
+      <dl class="facts">
+        <dt>Карточка</dt><dd class="file">frame-limiter-period-rounding</dd>
+        <dt>Устройство</dt><dd>Google Pixel 6 (90 Гц) — главное; iPad Pro (120 Гц) и M12 — для сравнения</dd>
+        <dt>Перед стартом</dt><dd>Экран не трогать до конца.</dd>
+        <dt>Файл</dt><dd class="file">nice-check-limiter-…json</dd>
+      </dl>
+      <a class="run" href="check-limiter.html">Открыть проверку</a>
+    </article>
+  </section>
+
+  <h2 class="group">Стенды</h2>
 
   <article class="bench" id="nice-bench">
     <div class="bench-head">
