@@ -79,6 +79,7 @@
   .facts dd { margin: 0; }
   code, .file { font: 13px/1.4 var(--mono); }
   .file { overflow-wrap: anywhere; }
+  .runs { display: flex; flex-wrap: wrap; gap: 8px; }
   .run { align-self: flex-start; font: 600 16px/1 var(--body); padding: 14px 22px; border: 0; border-radius: 10px; background: var(--accent); color: var(--accent-ink); cursor: pointer; }
   a.analytics { display: inline-block; text-decoration: none; }
   .run:focus-visible, .close:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
@@ -132,7 +133,24 @@
       <p class="note">Короткие замеры по ходу работы над движком. Каждая проверка отвечает на один вопрос из карточки в базе знаний и снимается на указанном устройстве; когда вопрос решён, проверка уходит из списка.</p>
     </div>
     <!-- Новые проверки — сверху: article.bench.check, в заголовке ключ карточки rag. -->
-    <p class="note empty">Сейчас проверок нет. Прошлые: лимитер FPS на 90 Гц (<code>frame-limiter-period-rounding</code>) — закрыта 28.09 замерами Pixel 6, iPad и M12.</p>
+    <article class="bench check" id="check-city">
+      <div class="bench-head">
+        <h2>Город на устройствах</h2>
+        <span class="dur">≈ 4 мин + 1 мин</span>
+      </div>
+      <p>Сборка движка NICE с городом из плеебла: 525 мешей, 30 материалов, 20 машин, солнце с тенью. Статичный кадр и пролёты камеры по улицам с тенью live, cache и none, карта тени 2048, DPR от 1 до устройства; большой город из 9 копий — облёт над крышами и улицы с отсечением мешей и без. Отдельно — «Регулятор»: пролёт на high, как движок сам снижает качество. По замеру решаем бюджеты пикселей, размер карты тени, кэш тени на low и отсечение.</p>
+      <dl class="facts">
+        <dt>Карточка</dt><dd class="file">v1r-devices</dd>
+        <dt>Устройства</dt><dd><b>Лок 30</b> — Galaxy M12: «Старт», затем «Регулятор». <b>Лок 60</b> — iPhone 16, iPad, Pixel 6: «Старт». <b>Без лока</b> — Pixel 6: «Старт».</dd>
+        <dt>Перед стартом</dt><dd>Телефон вертикально, другие приложения закрыты, экран не трогать до конца. Страница весит 8 МБ.</dd>
+        <dt>Файлы</dt><dd class="file">nice-city-…json, nice-city-governor-…json</dd>
+      </dl>
+      <div class="runs">
+        <a class="run" href="check-city-30.html?bench">Лок 30 · M12</a>
+        <a class="run" href="check-city-60.html?bench">Лок 60</a>
+        <a class="run" href="check-city-max.html?bench">Без лока · Pixel 6</a>
+      </div>
+    </article>
   </section>
 
   <h2 class="group">Стенды</h2>
