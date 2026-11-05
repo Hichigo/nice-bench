@@ -19,6 +19,7 @@
 
 | Файл | Карточка | Что проверяет |
 |---|---|---|
+| `check-build.html`, `check-build-applovin.html` | v1b-scenario | Пример сборки (examples/build): проверочный HTML — CTA в Google Play на любом устройстве; релиз AppLovin с подделкой MRAID — плашка со стором, который выбрал движок по устройству (Android — Google Play, iOS и iPadOS — App Store); человек отвечает по пунктам |
 | `check-particles-30.html`, `check-particles-60.html` (замер — с `?bench`) | v1pe-bench (прошлый — v1pt-bench) | Сборка стенда частиц (bench/check-particles/project): пять типовых эффектов разом и фонтан со столкновениями о коллайдеры, каждый с bloom, с постом без bloom и без поста; FPS и просадки, цена системы частиц, живые частицы, вызовы, лучи за кадр, экраны перерисовки — JSON |
 | `check-particles-example.html` | v1pt-example | Сборка примера частиц (examples/particles): поиграть — кнопки со всеми шаблонами эффектов, костёр, бегун со следом, эндкард с конфетти |
 | `check-physics-30.html`,`check-physics-60.html` (замер — с `?bench`) | v1ph-bench | Сборка стенда физики (bench/check-physics/project), сцена P50: 50 тел на тримеше, триггер и луч за кадр, шаг за локом; FPS и просадки, шаг (среднее, p95, максимум), первый шаг, загрузка WASM по фазам, память — JSON |

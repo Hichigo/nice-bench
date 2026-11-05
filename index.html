@@ -133,6 +133,23 @@
       <p class="note">Короткие замеры по ходу работы над движком. Каждая проверка отвечает на один вопрос из карточки в базе знаний и снимается на указанном устройстве; когда вопрос решён, проверка уходит из списка.</p>
     </div>
     <!-- Новые проверки — сверху: article.bench.check, в заголовке ключ карточки rag. -->
+    <article class="bench check" id="check-build">
+      <div class="bench-head">
+        <h2>CTA сборки на телефонах</h2>
+        <span class="dur">≈ 2 мин</span>
+      </div>
+      <p>Пример сборки движка NICE: подиум с тремя кристаллами, тап по кристаллу забирает его; собраны все три — эндкард «WELL DONE!» с кнопками INSTALL и RETRY. Кнопка INSTALL есть и в HUD справа сверху. Проверяем, в какой стор ведёт CTA. <b>«Проверочная сборка»</b> — HTML для разработки: INSTALL открывает Google Play на любом устройстве. <b>«AppLovin (MRAID)»</b> — релиз под площадку: в рекламе стор открывает сама площадка (mraid.open), здесь вместо неё внизу появляется плашка — какой стор выбрал движок по устройству и ссылка; кнопка «Открыть ссылку» открывает её.</p>
+      <dl class="facts">
+        <dt>Карточка</dt><dd class="file">v1b-scenario</dd>
+        <dt>Устройства</dt><dd>Galaxy M12, Pixel 6, iPhone 16, iPad.</dd>
+        <dt>Проверить</dt><dd><b>1.</b> Проверочная сборка: INSTALL в HUD и на эндкарде открывает Google Play (play.google.com, игра com.nice.gemtap — страницы может не быть, важен адрес) — на всех устройствах. <b>2.</b> AppLovin: INSTALL в HUD и на эндкарде — плашка «App Store» на iPhone и iPad, «Google Play» на M12 и Pixel 6; «Открыть ссылку» открывает этот стор. <b>3.</b> RETRY возвращает кристаллы, игру можно пройти ещё раз. <b>4.</b> Портрет и ландшафт: ничего не уходит за край.</dd>
+        <dt>Ответ</dt><dd>По каждому пункту на каждом устройстве — «работает» или что не так. Страницы весят по 0,4 МБ.</dd>
+      </dl>
+      <div class="runs">
+        <a class="run" href="check-build.html">Проверочная сборка</a>
+        <a class="run" href="check-build-applovin.html">AppLovin (MRAID)</a>
+      </div>
+    </article>
     <article class="bench check" id="check-particles">
       <div class="bench-head">
         <h2>Частицы на устройствах</h2>
